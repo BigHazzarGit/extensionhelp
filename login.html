@@ -95,42 +95,57 @@
 <script>
   
   const supabaseUrl = "https://gdtbszggjtshsewiixrb.supabase.co";
-  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdkdGJzemdnanRzaHNld2lpeHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1NzY5NjgsImV4cCI6MjA5ODE1Mjk2OH0.5eyX7K0-VO8DfpNGmoMD7xlEZTmwONDaZQAtTVpKXYg";
+const supabaseKey = "YOUR_ANON_KEY";
 
-  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-  async function auth() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+async function auth() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
 
-    let { data, error } = await supabase.auth.signInWithPassword({
+  if (!email || !password) {
+    document.getElementById("msg").innerText = "Please enter your email and password.";
+    return;
+  }
+
+  // Try logging in first
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (!error) {
+    document.getElementById("msg").innerText = "Logged in!";
+    window.location.href = "pay.html";
+    return;
+  }
+
+  // If login fails, try creating an account
+  const { data: signupData, error: signupError } =
+    await supabaseClient.auth.signUp({
       email,
       password
     });
 
-    if (error) {
-      // If login fails → try sign up
-      let signup = await supabase.auth.signUp({
-        email,
-        password
-      });
-
-      if (signup.error) {
-        document.getElementById("msg").innerText = signup.error.message;
-      } else {
-        document.getElementById("msg").innerText = "Account created. Check email if confirmation is required.";
-      }
-    } else {
-      document.getElementById("msg").innerText = "Logged in!";
-      localStorage.setItem("user", JSON.stringify(data.user));
-    }
+  if (signupError) {
+    document.getElementById("msg").innerText = signupError.message;
+    return;
   }
 
-  async function logout() {
-    await supabase.auth.signOut();
-    localStorage.removeItem("user");
-    document.getElementById("msg").innerText = "Logged out";
+  document.getElementById("msg").innerText =
+    "Account created! Please check your email if confirmation is enabled.";
+
+  // If email confirmation is disabled, redirect immediately
+  if (signupData.user && signupData.session) {
+    window.location.href = "pay.html";
   }
+}
+
+async function logout() {
+  await supabaseClient.auth.signOut();
+  localStorage.removeItem("user");
+  document.getElementById("msg").innerText = "Logged out";
+}
 </script>
 
 </body>
