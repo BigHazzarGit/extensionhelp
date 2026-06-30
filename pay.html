@@ -5,6 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Geo Helper | Upgrade</title>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    const SUPABASE_URL = "https://gdtbszggjtshsewiixrb.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdkdGJzemdnanRzaHNld2lpeHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1NzY5NjgsImV4cCI6MjA5ODE1Mjk2OH0.5eyX7K0-VO8DfpNGmoMD7xlEZTmwONDaZQAtTVpKXYg";
+
+    const supabaseClient = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
+
+    async function checkLogin() {
+      const { data, error } = await supabaseClient.auth.getUser();
+
+      if (error || !data.user) {
+        // Not logged in → send to login page
+        window.location.href = "login.html";
+      }
+    }
+
+    checkLogin();
+  </script>
+
   <style>
     body {
       margin: 0;
