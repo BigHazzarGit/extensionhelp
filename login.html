@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Geo Helper Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0d0f14;
+      color: #e8eaf2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .box {
+      background: #151820;
+      padding: 40px;
+      border-radius: 12px;
+      width: 320px;
+      border: 1px solid #252b3b;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: #1c2030;
+      color: white;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      background: #4f8ef7;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .switch {
+      margin-top: 15px;
+      text-align: center;
+      font-size: 13px;
+      color: #5a6480;
+      cursor: pointer;
+    }
+
+    .msg {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 13px;
+      color: #fbbf24;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>Geo Helper Login</h2>
+
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+
+  <button onclick="auth()">Login / Sign Up</button>
+
+  <div class="msg" id="msg"></div>
+
+  <div class="switch" onclick="logout()">
+    Logout
+  </div>
+</div>
+
+<script>
+  
+  const supabaseUrl = "https://gdtbszggjtshsewiixrb.supabase.co";
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdkdGJzemdnanRzaHNld2lpeHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1NzY5NjgsImV4cCI6MjA5ODE1Mjk2OH0.5eyX7K0-VO8DfpNGmoMD7xlEZTmwONDaZQAtTVpKXYg";
+
+  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+  async function auth() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    let { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      // If login fails → try sign up
+      let signup = await supabase.auth.signUp({
+        email,
+        password
+      });
+
+      if (signup.error) {
+        document.getElementById("msg").innerText = signup.error.message;
+      } else {
+        document.getElementById("msg").innerText = "Account created. Check email if confirmation is required.";
+      }
+    } else {
+      document.getElementById("msg").innerText = "Logged in!";
+      localStorage.setItem("user", JSON.stringify(data.user));
+    }
+  }
+
+  async function logout() {
+    await supabase.auth.signOut();
+    localStorage.removeItem("user");
+    document.getElementById("msg").innerText = "Logged out";
+  }
+</script>
+
+</body>
+</html>
