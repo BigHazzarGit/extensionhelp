@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Geo Helper - The ultimate offline GeoGuessr study tool. Learn coordinates, study metadata, and improve your game.">
+  <title>Geo Helper | GeoGuessr Study Tool</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-dark: #0d0f14;
+      --surface: #151820;
+      --surface-2: #1c2030;
+      --border: #252b3b;
+      --text: #e8eaf2;
+      --text-muted: #5a6480;
+      --accent: #4f8ef7;
+      --accent-dim: #1a2a4a;
+      --green: #34d399;
+      --amber: #fbbf24;
+      --red: #f87171;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Navigation */
+    nav {
+      position: sticky;
+      top: 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+    }
+
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--accent-dim);
+      border: 1.5px solid rgba(79, 142, 247, 0.4);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 30px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent);
+    }
+
+    /* Hero Section */
+    .hero {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 80px 20px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, var(--accent), #6da3ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--text-muted);
+      margin-bottom: 30px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 60px;
+    }
+
+    .btn {
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 8px 24px rgba(79, 142, 247, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(79, 142, 247, 0.4);
+    }
+
+    .btn-secondary {
+      background: var(--surface-2);
+      color: var(--accent);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      background: rgba(79, 142, 247, 0.08);
+    }
+
+    /* Features Grid */
+    .section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 40px;
+      color: var(--text);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 30px;
+      transition: all 0.3s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(79, 142, 247, 0.3);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+
+    .feature-card h3 {
+      font-size: 18px;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .feature-card p {
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* Setup Section */
+    .steps-grid {
+      display: grid;
+      gap: 30px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      position: relative;
+      padding-left: 60px;
+    }
+
+    .step-number {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+      width: 36px;
+      height: 36px;
+      background: var(--accent-dim);
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .step h3 {
+      font-size: 16px;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .step p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .code-block {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      color: var(--accent);
+      overflow-x: auto;
+      margin-top: 12px;
+    }
+
+    /* FAQ */
+    .faq-grid {
+      display: grid;
+      gap: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .faq-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .faq-question {
+      padding: 20px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      user-select: none;
+      transition: background 0.2s;
+    }
+
+    .faq-question:hover {
+      background: var(--surface-2);
+    }
+
+    .faq-toggle {
+      color: var(--accent);
+      font-size: 20px;
+      transition: transform 0.3s;
+    }
+
+    .faq-item.open .faq-toggle {
+      transform: rotate(180deg);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      background: var(--surface-2);
+    }
+
+    .faq-item.open .faq-answer {
+      max-height: 500px;
+      border-top: 1px solid var(--border);
+    }
+
+    .faq-answer p {
+      padding: 20px;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+
+    /* Status Badges */
+    .badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .badge-safe {
+      background: rgba(52, 211, 153, 0.15);
+      color: var(--green);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+
+    /* Footer */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 32px;
+      }
+
+      .hero p {
+        font-size: 16px;
+      }
+
+      .section-title {
+        font-size: 24px;
+      }
+
+      .nav-links {
+        gap: 15px;
+        font-size: 13px;
+      }
+
+      .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="nav-container">
+      <div class="logo">
+        <div class="logo-icon">🧭</div>
+        <span>Geo Helper</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#setup">Setup</a></li>
+        <li><a href="#usage">Usage</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1>Geo Helper</h1>
+    <p>Master GeoGuessr by studying actual coordinate data. Learn how the game works with your offline practice tool.</p>
+    <div class="cta-buttons">
+      <a href="#setup" class="btn btn-primary">Get Started →</a>
+      <a href="#features" class="btn btn-secondary">Learn More</a>
+    </div>
+    <div class="badge badge-safe">✓ Offline Mode Only • Safe for Practice</div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="section" id="features">
+    <h2 class="section-title">Why Geo Helper?</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3>Extract Coordinates</h3>
+        <p>Automatically captures GetMetadata responses from GeoGuessr and extracts the actual coordinates of the round.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🗺️</div>
+        <h3>Interactive Maps</h3>
+        <p>View captured coordinates on an interactive map with adjustable zoom levels, from street view to country level.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Study Patterns</h3>
+        <p>Learn how GeoGuessr structures its data and understand coordinate patterns across different regions.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>Offline Safe</h3>
+        <p>Use in offline mode only. Automatically blocked in competitive games to keep your learning legitimate.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <h3>Copy Coordinates</h3>
+        <p>Easily copy extracted coordinates for note-taking, analysis, or further study.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">👤</div>
+        <h3>Account Management</h3>
+        <p>Sign in with your account to track your study sessions and access all features.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Setup Section -->
+  <section class="section" id="setup">
+    <h2 class="section-title">Installation</h2>
+    <div class="steps-grid">
+      <div class="step">
+        <div class="step-number">1</div>
+        <h3>Open Chrome Web Store</h3>
+        <p>Visit the Chrome Web Store and search for "Geo Helper" or click the link below.</p>
+        <div class="code-block" style="margin-top: 12px;">chrome.google.com/webstore</div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        <h3>Click "Add to Chrome"</h3>
+        <p>On the Geo Helper extension page, click the blue "Add to Chrome" button. A popup will appear asking for confirmation.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-number">3</div>
+        <h3>Confirm Installation</h3>
+        <p>Click "Add extension" in the confirmation popup. Chrome will automatically download and install Geo Helper.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-number">4</div>
+        <h3>Open the Extension</h3>
+        <p>Click the puzzle piece icon in Chrome's toolbar and pin Geo Helper. Then click the Geo Helper icon to open the side panel.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-number">5</div>
+        <h3>Sign Up or Log In</h3>
+        <p>Create a new account or sign in with your email and password using the form in the side panel.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-number">6</div>
+        <h3>Subscribe</h3>
+        <p>Click the "Subscribe" button to unlock the coordinate capture feature. Complete payment through Stripe to activate your subscription.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-number">7</div>
+        <h3>Start Using Geo Helper</h3>
+        <p>Once your subscription is active, you're ready to start capturing! Open GeoGuessr in offline mode and click "▶ Start" in the side panel to begin.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Usage Section -->
+  <section class="section" id="usage">
+    <h2 class="section-title">How to Use</h2>
+    <div class="steps-grid">
+      <div class="step">
+        <div class="step-number">📍</div>
+        <h3>Play in Offline Mode</h3>
+        <p>Launch GeoGuessr in offline mode. This ensures the capture tool works safely without affecting competitive matches.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-number">▶️</div>
+        <h3>Start Capturing</h3>
+        <p>Click the "▶ Start" button in the Geo Helper side panel. The extension will now monitor network activity for GetMetadata responses.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-number">🎮</div>
+        <h3>Play a Round</h3>
+        <p>Play through a round in GeoGuessr. When you submit your answer, the extension captures the GetMetadata response containing the actual coordinates.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-number">📍</div>
+        <h3>View on Map</h3>
+        <p>The extracted coordinates appear automatically in the side panel with confidence levels. An interactive map shows the location at your chosen zoom level.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-number">📋</div>
+        <h3>Copy & Study</h3>
+        <p>Use "⎘ Copy coordinates" to save coordinates to your clipboard. Paste them into a spreadsheet, notes, or mapping tool for deeper analysis.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-number">🛑</div>
+        <h3>Stop When Done</h3>
+        <p>Click "■ Stop" to end capturing. Use "✕ Clear" to reset the display between study sessions.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="section" id="faq">
+    <h2 class="section-title">Frequently Asked Questions</h2>
+    <div class="faq-grid">
+      <div class="faq-item">
+        <div class="faq-question">
+          <span>Is Geo Helper safe to use?</span>
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>Yes. Geo Helper is designed to work only in offline mode and is automatically blocked from accessing competitive or ranked games. It's purely a study and learning tool for understanding GeoGuessr's data structures and improving your geography skills through legitimate practice.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <span>Will this work in competitive matches?</span>
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>No. The extension includes built-in safeguards that prevent it from functioning in competitive or multiplayer games. It only works in offline practice mode, keeping your gameplay legitimate.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <span>What do the confidence levels mean?</span>
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>Confidence levels indicate how certain the extraction algorithm is about the coordinates. "High" means the coordinates were found in the standard location with proper validation. "Medium" means they were extracted but may require verification. Always cross-check coordinates with the map display.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <span>Can I manually paste JSON data?</span>
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>Yes! If automatic capture doesn't work, you can paste the GetMetadata JSON response directly into the "Manual Paste" section. Click "Extract coordinates from paste" and the tool will parse and extract the coordinates.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <span>Do I need to pay for Geo Helper?</span>
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>Geo Helper uses a subscription model to support ongoing development and server costs. You'll need an active subscription to use the coordinate capture feature. Check the pricing page for current rates.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <span>What do I do if capturing doesn't work?</span>
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>First, make sure you're in offline mode and have an active subscription. Refresh the page and try again. If the issue persists, use the Manual Paste feature to extract coordinates directly from the GetMetadata JSON response.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <span>How do I export my captured data?</span>
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-answer">
+          <p>You can copy individual coordinates to your clipboard using the "⎘ Copy coordinates" button. For batch exports, consider taking screenshots of the map or manually recording coordinates in a spreadsheet or mapping tool.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2024 Geo Helper. Built for GeoGuessr enthusiasts.</p>
+    <p style="margin-top: 15px; font-size: 12px;">For offline study and learning purposes only.</p>
+  </footer>
+
+  <script>
+    // FAQ Toggle
+    document.querySelectorAll('.faq-question').forEach(question => {
+      question.addEventListener('click', () => {
+        const item = question.parentElement;
+        item.classList.toggle('open');
+      });
+    });
+
+    // Smooth scroll for nav links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
