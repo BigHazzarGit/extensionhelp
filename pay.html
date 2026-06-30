@@ -62,21 +62,53 @@
 </div>
 
 <script type="module">
-/* =========================
-   CONFIG (YOUR EXISTING)
-========================= */
-const SUPABASE_URL = "https://gdtbszggjtshsewiixrb.supabase.co";
-const STRIPE_PRICE_ID = "price_1Tn0x6CYEDjRn0mPmVPWWQXH"; // optional if already handled in Edge Function
 
 /* =========================
-   GET USER SESSION (WEB VERSION)
+   CONFIG
+========================= */
+const SUPABASE_URL = "https://gdtbszggjtshsewiixrb.supabase.co";
+const STRIPE_PRICE_ID = "price_1Tn0x6CYEDjRn0mPmVPWWQXH";
+
+/* =========================
+   SESSION
 ========================= */
 function getSession() {
   return JSON.parse(localStorage.getItem("sb_session"));
 }
 
 /* =========================
-   START CHECKOUT (USES YOUR EDGE FUNCTION)
+   CHECK SUBSCRIPTION STATUS (NEW)
+========================= */
+async function checkSubscription() {
+  const session = getSession();
+
+  if (!session?.access_token) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/profiles?select=subscription_status&id=eq.${session.user.id}`,
+    {
+      method: "GET",
+      headers: {
+        apikey: session.access_token,
+        Authorization: `Bearer ${session.access_token}`
+      }
+    }
+  );
+
+  const data = await res.json();
+  const profile = data?.[0];
+
+  if (profile?.subscription_status === "active" || profile?.subscription_status === "trialing") {
+    // Already paid → send to main app
+    window.location.href = "index.html";
+  }
+}
+
+/* =========================
+   START CHECKOUT
 ========================= */
 async function startCheckoutWeb() {
   const session = getSession();
@@ -105,7 +137,6 @@ async function startCheckoutWeb() {
     return;
   }
 
-  // Redirect to Stripe Checkout
   window.location.href = data.url;
 }
 
@@ -119,6 +150,12 @@ window.pay = async function () {
     alert(e.message);
   }
 };
+
+/* =========================
+   RUN ON PAGE LOAD
+========================= */
+checkSubscription();
+
 </script>
 
 </body>
