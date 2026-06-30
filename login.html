@@ -93,8 +93,7 @@
 </div>
 
 <script>
-  
-  const supabaseUrl = "https://gdtbszggjtshsewiixrb.supabase.co";
+const supabaseUrl = "https://gdtbszggjtshsewiixrb.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdkdGJzemdnanRzaHNld2lpeHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1NzY5NjgsImV4cCI6MjA5ODE1Mjk2OH0.5eyX7K0-VO8DfpNGmoMD7xlEZTmwONDaZQAtTVpKXYg";
 
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
@@ -116,6 +115,10 @@ async function auth() {
 
   if (!error) {
     document.getElementById("msg").innerText = "Logged in!";
+
+    // ✅ SAVE SESSION FOR GITHUB PAGES
+    localStorage.setItem("sb_session", JSON.stringify(data.session));
+
     window.location.href = "pay.html";
     return;
   }
@@ -136,14 +139,18 @@ async function auth() {
     "Account created! Please check your email if confirmation is enabled.";
 
   // If email confirmation is disabled, redirect immediately
-  if (signupData.user && signupData.session) {
+  if (signupData.session) {
+    localStorage.setItem("sb_session", JSON.stringify(signupData.session));
     window.location.href = "pay.html";
   }
 }
 
 async function logout() {
   await supabaseClient.auth.signOut();
-  localStorage.removeItem("user");
+
+  // clear web session
+  localStorage.removeItem("sb_session");
+
   document.getElementById("msg").innerText = "Logged out";
 }
 </script>
